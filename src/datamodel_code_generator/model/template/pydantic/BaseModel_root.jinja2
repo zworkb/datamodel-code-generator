@@ -1,10 +1,32 @@
 {% for decorator in decorators -%}
 {{ decorator }}
 {% endfor -%}
-class {{ class_name }}({{ base_class }}):{% if comment is defined %}  # {{ comment }}{% endif %}
+
+{%- set field = fields[0] %}
+
+
+{%- if field.annotated %}
+{% set annotation = field.annotated%} 
+{%- else %}
+{% set annotation = field.type_hint %}
+{%- endif %}
+
+
+
+class {{ class_name }}({{ base_class }}[{{ annotation}}]):{% if comment is defined %}  # {{ comment }}{% endif %}
 {%- if description %}
     """
+    kk
     {{ description | indent(4) }}
+    {%- if field.docstring %}
+    {{ field.docstring | indent(4) }}
+    {%- endif %}
+
+    {% if field.description %}
+    {{ field.description | indent(4) }}
+    {%- endif %}
+
+  
     """
 {%- endif %}
 {%- if config %}
@@ -15,22 +37,10 @@ class {{ class_name }}({{ base_class }}):{% if comment is defined %}  # {{ comme
 {%- if not fields and not description %}
     pass
 {%- else %}
-    {%- set field = fields[0] %}
-    {%- if not field.annotated and field.field %}
-    __root__: {{ field.type_hint }} = {{ field.field }}
-    {%- else %}
-    {%- if field.annotated %}
-    __root__: {{ field.annotated }}
-    {%- else %}
-    __root__: {{ field.type_hint }}
-    {%- endif %}
-    {%- if not (field.required or (field.represented_default == 'None' and field.strip_default_none))
-            %} = {{ field.represented_default }}
-    {%- endif -%}
-    {%- endif %}
-    {%- if field.docstring %}
     """
-    {{ field.docstring | indent(4) }}
+    {% if field.extras.get("description")%}{{field.extras.get("description")}}{%- endif %}
+    {% if field.extras.get("example")%}Example: {{ field.extras.get("example") }}{%- endif %}
+    {% if field.extras.get("title")%}Title: {{ field.extras.get("title") }}{%- endif %}
     """
-    {%- endif %}
+
 {%- endif %}
