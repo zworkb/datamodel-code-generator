@@ -153,7 +153,7 @@ escape_characters = str.maketrans({
 
 
 class DataTypeManager(_DataTypeManager):
-    PATTERN_KEY: ClassVar[str] = "regex"
+    PATTERN_KEY: ClassVar[str] = "pattern"
 
     def __init__(  # noqa: PLR0913, PLR0917
         self,
